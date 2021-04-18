@@ -5,8 +5,7 @@ import base64
 
 
 def standard_data_item(raw_data):
-    fine_data = raw_data
-    fine_data = fine_data.text.strip()
+    fine_data = raw_data.text.strip()
     return fine_data
 
 
@@ -55,10 +54,8 @@ def crawl_ma_chung_khoan(ma, start_date, end_date):
 
 soup = crawl_ma_chung_khoan('VCB', '01%2F04%2F2021', '05%2F04%2F2021')
 
-trs = soup.find_all('tr')
-print(len(trs))
-data = []
-indexes = []
+rows = soup.find_all('tr')
+print(len(rows))
 
 dates = []
 adjs = []
@@ -67,25 +64,30 @@ opened_prices = []
 max_prices = []
 min_prices = []
 
-for tr in trs:
-    trs_data = get_data(tr)
-    if trs_data is not None and trs_data['Date'] is not None:
-        data_list = [trs_data['Date'], trs_data['Giá điều chỉnh'], trs_data['Giá đóng cửa'], trs_data['Giá mở cửa'],
-                     trs_data['Giá cao nhất'], trs_data['Giá thấp nhất']]
-        dates.append(trs_data['Date'])
-        adjs.append(trs_data['Giá điều chỉnh'])
-        closed_prices.append(trs_data['Giá đóng cửa'])
-        opened_prices.append(trs_data['Giá mở cửa'])
-        max_prices.append(trs_data['Giá cao nhất'])
-        min_prices.append(trs_data['Giá thấp nhất'])
+date_key = 'Date'
+max_price_key = 'Giá cao nhất'
+adj_key = 'Giá điều chỉnh'
+closed_price_key = 'Giá đóng cửa'
+opened_price_key = 'Giá mở cửa'
+min_price_key = 'Giá thấp nhất'
+
+for row in rows:
+    rows_data = get_data(row)
+    if rows_data is not None and rows_data[date_key] is not None:
+        dates.append(rows_data[date_key])
+        adjs.append(rows_data[adj_key])
+        closed_prices.append(rows_data[closed_price_key])
+        opened_prices.append(rows_data[opened_price_key])
+        max_prices.append(rows_data[max_price_key])
+        min_prices.append(rows_data[min_price_key])
 
 data = {
-    'Date': dates,
-    'Giá điều chỉnh': adjs,
-    'Giá đóng cửa': closed_prices,
-    'Giá mở cửa': opened_prices,
-    'Giá cao nhất': max_prices,
-    'Giá thấp nhất': min_prices
+    date_key: dates,
+    adj_key: adjs,
+    closed_price_key: closed_prices,
+    opened_price_key: opened_prices,
+    max_price_key: max_prices,
+    min_price_key: min_prices
 }
 
 frame = pd.DataFrame(data)
